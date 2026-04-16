@@ -26,7 +26,11 @@
   }
 
   .buttonActive {
-    background: rgba(0, 0, 0, 0.4);
+    background: #0079bf;
+
+    &:hover {
+      background: #026aa7;
+    }
   }
 
   .buttonGroup {
