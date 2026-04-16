@@ -78,6 +78,7 @@ export default class extends BaseModel {
     subscribeToCardWhenCommenting: attr(),
     turnOffRecentCardHighlighting: attr(),
     openCardOnCreate: attr(),
+    showCommentCount: attr(),
     isDefaultAdmin: attr(),
     isSsoUser: attr(),
     isDeactivated: attr(),

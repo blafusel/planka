@@ -53,6 +53,11 @@ const ProjectContent = React.memo(({ cardId }) => {
 
   const selectAttachmentById = useMemo(() => selectors.makeSelectAttachmentById(), []);
 
+  const showCommentCount = useSelector((state) => {
+    const currentUser = selectors.selectCurrentUser(state);
+    return currentUser ? currentUser.showCommentCount !== false : true;
+  });
+
   const card = useSelector((state) => selectCardById(state, cardId));
   const list = useSelector((state) => selectListById(state, card.listId));
   const userIds = useSelector((state) => selectUserIdsByCardId(state, cardId));
@@ -150,6 +155,14 @@ const ProjectContent = React.memo(({ cardId }) => {
 
   return (
     <div className={styles.wrapper}>
+      {showCommentCount && card.commentsTotal > 0 && (
+        <span className={classNames(styles.attachments, styles.attachmentsRight)}>
+          <span className={styles.commentBadge}>
+            <Icon name="comment outline" />
+            {card.commentsTotal}
+          </span>
+        </span>
+      )}
       <div className={classNames(styles.name, card.isClosed && styles.nameClosed)}>{card.name}</div>
       {showDescriptions && card.description && (
         <div className={styles.description}>{markdownToText(card.description)}</div>
@@ -233,14 +246,6 @@ const ProjectContent = React.memo(({ cardId }) => {
               <span className={styles.attachmentContent}>
                 <Icon name="attach" />
                 {attachmentsTotal}
-              </span>
-            </span>
-          )}
-          {card.commentsTotal > 0 && (
-            <span className={classNames(styles.attachment, styles.attachmentLeft)}>
-              <span className={styles.commentBadge}>
-                <Icon name="comment outline" />
-                {card.commentsTotal}
               </span>
             </span>
           )}

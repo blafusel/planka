@@ -64,6 +64,14 @@ const PreferencesPane = React.memo(() => {
         className={styles.radio}
         onChange={handleChange}
       />
+      <Radio
+        toggle
+        name="showCommentCount"
+        checked={user.showCommentCount}
+        label={t('common.showCommentCount')}
+        className={styles.radio}
+        onChange={handleChange}
+      />
     </Tab.Pane>
   );
 });

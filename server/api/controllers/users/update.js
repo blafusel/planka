@@ -197,6 +197,9 @@ module.exports = {
     openCardOnCreate: {
       type: 'boolean',
     },
+    showCommentCount: {
+      type: 'boolean',
+    },
     enableFavoritesByDefault: {
       type: 'boolean',
     },
@@ -287,6 +290,7 @@ module.exports = {
         'subscribeToCardWhenCommenting',
         'turnOffRecentCardHighlighting',
         'openCardOnCreate',
+        'showCommentCount',
         'enableFavoritesByDefault',
         'defaultEditorMode',
         'defaultHomeView',
