@@ -238,7 +238,7 @@ const ProjectContent = React.memo(({ cardId }) => {
           )}
           {card.commentsTotal > 0 && (
             <span className={classNames(styles.attachment, styles.attachmentLeft)}>
-              <span className={styles.attachmentContent}>
+              <span className={styles.commentBadge}>
                 <Icon name="comment outline" />
                 {card.commentsTotal}
               </span>
