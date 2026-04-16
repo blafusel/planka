@@ -155,14 +155,6 @@ const ProjectContent = React.memo(({ cardId }) => {
 
   return (
     <div className={styles.wrapper}>
-      {showCommentCount && card.commentsTotal > 0 && (
-        <span className={classNames(styles.attachments, styles.attachmentsRight)}>
-          <span className={styles.commentBadge}>
-            <Icon name="comment outline" />
-            {card.commentsTotal}
-          </span>
-        </span>
-      )}
       <div className={classNames(styles.name, card.isClosed && styles.nameClosed)}>{card.name}</div>
       {showDescriptions && card.description && (
         <div className={styles.description}>{markdownToText(card.description)}</div>
@@ -260,6 +252,14 @@ const ProjectContent = React.memo(({ cardId }) => {
         </span>
       )}
       {!isCompact && usersNode}
+      {showCommentCount && card.commentsTotal > 0 && (
+        <span className={classNames(styles.attachments, styles.attachmentsRight)}>
+          <span className={styles.commentBadge}>
+            <Icon name="comment outline" />
+            {card.commentsTotal}
+          </span>
+        </span>
+      )}
     </div>
   );
 });
