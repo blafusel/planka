@@ -119,6 +119,11 @@
  *           default: false
  *           description: Whether recent card highlighting is disabled (personal field)
  *           example: false
+ *         openCardOnCreate:
+ *           type: boolean
+ *           default: true
+ *           description: Whether a newly created card is automatically opened for editing (personal field)
+ *           example: true
  *         enableFavoritesByDefault:
  *           type: boolean
  *           default: true
@@ -245,6 +250,7 @@ const PERSONAL_FIELD_NAMES = [
   'subscribeToOwnCards',
   'subscribeToCardWhenCommenting',
   'turnOffRecentCardHighlighting',
+  'openCardOnCreate',
   'enableFavoritesByDefault',
   'defaultEditorMode',
   'defaultHomeView',
@@ -348,6 +354,11 @@ module.exports = {
       type: 'boolean',
       defaultsTo: false,
       columnName: 'turn_off_recent_card_highlighting',
+    },
+    openCardOnCreate: {
+      type: 'boolean',
+      defaultsTo: true,
+      columnName: 'open_card_on_create',
     },
     enableFavoritesByDefault: {
       type: 'boolean',

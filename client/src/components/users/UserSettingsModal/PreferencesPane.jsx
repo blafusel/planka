@@ -34,6 +34,14 @@ const PreferencesPane = React.memo(() => {
     <Tab.Pane attached={false} className={styles.wrapper}>
       <Radio
         toggle
+        name="openCardOnCreate"
+        checked={user.openCardOnCreate}
+        label={t('common.openCardOnCreate')}
+        className={styles.radio}
+        onChange={handleChange}
+      />
+      <Radio
+        toggle
         name="subscribeToOwnCards"
         checked={user.subscribeToOwnCards}
         label={t('common.subscribeToMyOwnCardsByDefault')}

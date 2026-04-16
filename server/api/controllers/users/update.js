@@ -76,6 +76,10 @@
  *                 type: boolean
  *                 description: Whether recent card highlighting is disabled
  *                 example: false
+ *               openCardOnCreate:
+ *                 type: boolean
+ *                 description: Whether a newly created card is automatically opened for editing
+ *                 example: true
  *               enableFavoritesByDefault:
  *                 type: boolean
  *                 description: Whether favorites are enabled by default
@@ -190,6 +194,9 @@ module.exports = {
     turnOffRecentCardHighlighting: {
       type: 'boolean',
     },
+    openCardOnCreate: {
+      type: 'boolean',
+    },
     enableFavoritesByDefault: {
       type: 'boolean',
     },
@@ -279,6 +286,7 @@ module.exports = {
         'subscribeToOwnCards',
         'subscribeToCardWhenCommenting',
         'turnOffRecentCardHighlighting',
+        'openCardOnCreate',
         'enableFavoritesByDefault',
         'defaultEditorMode',
         'defaultHomeView',

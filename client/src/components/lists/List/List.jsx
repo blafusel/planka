@@ -50,6 +50,9 @@ const List = React.memo(({ id, index }) => {
 
   const clipboard = useSelector(selectors.selectClipboard);
   const isFavoritesActive = useSelector(selectors.selectIsFavoritesActiveForCurrentUser);
+  const openCardOnCreate = useSelector(
+    (state) => selectors.selectCurrentUser(state).openCardOnCreate,
+  );
 
   const list = useSelector((state) => selectListById(state, id));
   const cardIds = useSelector((state) => selectFilteredCardIdsByListId(state, id));
@@ -153,6 +156,7 @@ const List = React.memo(({ id, index }) => {
   const addCardNode = canAddCard && (
     <AddCard
       isOpened={!!addCardPosition}
+      openOnCreate={openCardOnCreate}
       className={styles.addCard}
       onCreate={handleCardCreate}
       onClose={handleAddCardClose}

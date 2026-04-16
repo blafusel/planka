@@ -25,7 +25,7 @@ const DEFAULT_DATA = {
   name: '',
 };
 
-const AddCard = React.memo(({ isOpened, className, onCreate, onClose }) => {
+const AddCard = React.memo(({ isOpened, openOnCreate, className, onCreate, onClose }) => {
   const { defaultCardType: defaultType, limitCardTypesToDefaultOne: limitTypesToDefaultOne } =
     useSelector(selectors.selectCurrentBoard);
 
@@ -73,8 +73,8 @@ const AddCard = React.memo(({ isOpened, className, onCreate, onClose }) => {
   );
 
   const handleSubmit = useCallback(() => {
-    submit();
-  }, [submit]);
+    submit(openOnCreate);
+  }, [openOnCreate, submit]);
 
   const handleTypeSelect = useCallback(
     (type) => {
@@ -91,7 +91,7 @@ const AddCard = React.memo(({ isOpened, className, onCreate, onClose }) => {
       switch (event.key) {
         case 'Enter':
           event.preventDefault();
-          submit(isModifierKeyPressed(event));
+          submit(openOnCreate || isModifierKeyPressed(event));
 
           break;
         case 'Escape':
@@ -101,7 +101,7 @@ const AddCard = React.memo(({ isOpened, className, onCreate, onClose }) => {
         default:
       }
     },
-    [onClose, submit],
+    [onClose, openOnCreate, submit],
   );
 
   const handleSelectTypeClose = useCallback(() => {
@@ -198,6 +198,7 @@ const AddCard = React.memo(({ isOpened, className, onCreate, onClose }) => {
 
 AddCard.propTypes = {
   isOpened: PropTypes.bool,
+  openOnCreate: PropTypes.bool,
   className: PropTypes.string,
   onCreate: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
@@ -205,6 +206,7 @@ AddCard.propTypes = {
 
 AddCard.defaultProps = {
   isOpened: true,
+  openOnCreate: false,
   className: undefined,
 };
 

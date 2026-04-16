@@ -1,6 +1,7 @@
 services:
   planka:
-    image: ghcr.io/plankanban/planka:latest
+    build: .
+    image: planka-local
     restart: on-failure
     volumes:
       - data:/app/data
@@ -22,7 +23,8 @@ services:
       # secrets:
       #   - database_password
 
-      - SECRET_KEY=notsecretkey
+      - SECRET_KEY=dc147aecb9c226c9baffc547ec6635e66e4971999097b5e495cf92b86c85a52584ad7b9607d2fee14b942d94bf0d6cf4603e5157e73ba2241e1bb0d047b51df1
+
       # Optionally store in secrets - then SECRET_KEY should not be set
       # - SECRET_KEY__FILE=/run/secrets/secret_key
 
