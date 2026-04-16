@@ -11,7 +11,6 @@ import { usePopup } from '../../../../lib/popup';
 
 import selectors from '../../../../selectors';
 import entryActions from '../../../../entry-actions';
-import actions from '../../../../actions';
 import { BoardContexts, BoardViews } from '../../../../constants/Enums';
 import { BoardViewIcons } from '../../../../constants/Icons';
 import ActionsStep from './ActionsStep';
@@ -20,6 +19,10 @@ import styles from './RightSide.module.scss';
 
 const RightSide = React.memo(() => {
   const board = useSelector(selectors.selectCurrentBoard);
+  const showDescriptions = useSelector((state) => {
+    const user = selectors.selectCurrentUser(state);
+    return user ? !!user.showDescriptionsOnCards : false;
+  });
 
   const dispatch = useDispatch();
 
@@ -31,8 +34,8 @@ const RightSide = React.memo(() => {
   );
 
   const handleToggleDescriptionsClick = useCallback(() => {
-    dispatch(actions.updateBoard(board.id, { showDescriptions: !board.showDescriptions }));
-  }, [board.id, board.showDescriptions, dispatch]);
+    dispatch(entryActions.updateCurrentUser({ showDescriptionsOnCards: !showDescriptions }));
+  }, [showDescriptions, dispatch]);
 
   const ActionsPopup = usePopup(ActionsStep);
 
@@ -62,7 +65,7 @@ const RightSide = React.memo(() => {
       <div className={styles.action}>
         <button
           type="button"
-          className={classNames(styles.button, board.showDescriptions && styles.buttonActive)}
+          className={classNames(styles.button, showDescriptions && styles.buttonActive)}
           onClick={handleToggleDescriptionsClick}
           title="Toggle card descriptions"
         >

@@ -252,6 +252,7 @@ const PERSONAL_FIELD_NAMES = [
   'turnOffRecentCardHighlighting',
   'openCardOnCreate',
   'showCommentCount',
+  'showDescriptionsOnCards',
   'enableFavoritesByDefault',
   'defaultEditorMode',
   'defaultHomeView',
@@ -365,6 +366,11 @@ module.exports = {
       type: 'boolean',
       defaultsTo: true,
       columnName: 'show_comment_count',
+    },
+    showDescriptionsOnCards: {
+      type: 'boolean',
+      defaultsTo: false,
+      columnName: 'show_descriptions_on_cards',
     },
     enableFavoritesByDefault: {
       type: 'boolean',

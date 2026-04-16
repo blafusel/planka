@@ -79,6 +79,7 @@ export default class extends BaseModel {
     turnOffRecentCardHighlighting: attr(),
     openCardOnCreate: attr(),
     showCommentCount: attr(),
+    showDescriptionsOnCards: attr(),
     isDefaultAdmin: attr(),
     isSsoUser: attr(),
     isDeactivated: attr(),

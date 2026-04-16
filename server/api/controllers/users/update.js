@@ -200,6 +200,9 @@ module.exports = {
     showCommentCount: {
       type: 'boolean',
     },
+    showDescriptionsOnCards: {
+      type: 'boolean',
+    },
     enableFavoritesByDefault: {
       type: 'boolean',
     },
@@ -291,6 +294,7 @@ module.exports = {
         'turnOffRecentCardHighlighting',
         'openCardOnCreate',
         'showCommentCount',
+        'showDescriptionsOnCards',
         'enableFavoritesByDefault',
         'defaultEditorMode',
         'defaultHomeView',

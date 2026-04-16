@@ -53,11 +53,6 @@ const ProjectContent = React.memo(({ cardId }) => {
 
   const selectAttachmentById = useMemo(() => selectors.makeSelectAttachmentById(), []);
 
-  const showCommentCount = useSelector((state) => {
-    const currentUser = selectors.selectCurrentUser(state);
-    return currentUser ? currentUser.showCommentCount !== false : true;
-  });
-
   const card = useSelector((state) => selectCardById(state, cardId));
   const list = useSelector((state) => selectListById(state, card.listId));
   const userIds = useSelector((state) => selectUserIdsByCardId(state, cardId));
@@ -82,16 +77,21 @@ const ProjectContent = React.memo(({ cardId }) => {
     return attachment && attachment.data.thumbnailUrls.outside360;
   });
 
-  const { listName, withCreator, withAge, showDescriptions } = useSelector((state) => {
-    const board = selectors.selectCurrentBoard(state);
+  const { listName, withCreator, withAge, showDescriptions, showCommentCount } = useSelector(
+    (state) => {
+      const board = selectors.selectCurrentBoard(state);
+      const currentUser = selectors.selectCurrentUser(state);
 
-    return {
-      listName: list.name && (board.view === BoardViews.KANBAN ? null : list.name),
-      withCreator: board.alwaysDisplayCardCreator,
-      withAge: board.displayCardAges,
-      showDescriptions: board.showDescriptions,
-    };
-  }, shallowEqual);
+      return {
+        listName: list.name && (board.view === BoardViews.KANBAN ? null : list.name),
+        withCreator: board.alwaysDisplayCardCreator,
+        withAge: board.displayCardAges,
+        showDescriptions: currentUser ? !!currentUser.showDescriptionsOnCards : false,
+        showCommentCount: currentUser ? currentUser.showCommentCount !== false : true,
+      };
+    },
+    shallowEqual,
+  );
 
   const canEditStopwatch = useSelector((state) => {
     if (isListArchiveOrTrash(list)) {
