@@ -18,11 +18,14 @@ import { useClosable, useForm, useNestedRef } from '../../../hooks';
 import { isModifierKeyPressed } from '../../../utils/event-helpers';
 import { CardTypeIcons } from '../../../constants/Icons';
 import SelectCardTypeStep from '../SelectCardTypeStep';
+import LabelsStep from '../../labels/LabelsStep';
+import LabelChip from '../../labels/LabelChip';
 
 import styles from './AddCard.module.scss';
 
 const DEFAULT_DATA = {
   name: '',
+  labelIds: [],
 };
 
 const AddCard = React.memo(({ isOpened, openOnCreate, className, onCreate, onClose }) => {
@@ -43,6 +46,7 @@ const AddCard = React.memo(({ isOpened, openOnCreate, className, onCreate, onClo
   const [nameFieldRef, handleNameFieldRef] = useNestedRef();
   const [submitButtonRef, handleSubmitButtonRef] = useNestedRef();
   const [selectTypeButtonRef, handleSelectTypeButtonRef] = useNestedRef();
+  const [labelsButtonRef, handleLabelsButtonRef] = useNestedRef();
 
   const submit = useCallback(
     (autoOpen) => {
@@ -86,6 +90,26 @@ const AddCard = React.memo(({ isOpened, openOnCreate, className, onCreate, onClo
     [setData],
   );
 
+  const handleLabelSelect = useCallback(
+    (id) => {
+      setData((prevData) => ({
+        ...prevData,
+        labelIds: [...prevData.labelIds, id],
+      }));
+    },
+    [setData],
+  );
+
+  const handleLabelDeselect = useCallback(
+    (id) => {
+      setData((prevData) => ({
+        ...prevData,
+        labelIds: prevData.labelIds.filter((labelId) => labelId !== id),
+      }));
+    },
+    [setData],
+  );
+
   const handleFieldKeyDown = useCallback(
     (event) => {
       switch (event.key) {
@@ -109,6 +133,11 @@ const AddCard = React.memo(({ isOpened, openOnCreate, className, onCreate, onClo
     nameFieldRef.current.focus();
   }, [deactivateClosable, nameFieldRef]);
 
+  const handleLabelsClose = useCallback(() => {
+    deactivateClosable();
+    nameFieldRef.current.focus();
+  }, [deactivateClosable, nameFieldRef]);
+
   const handleAwayClick = useCallback(() => {
     if (!isOpened || isClosableActiveRef.current) {
       return;
@@ -122,7 +151,7 @@ const AddCard = React.memo(({ isOpened, openOnCreate, className, onCreate, onClo
   }, [nameFieldRef]);
 
   const clickAwayProps = useClickAwayListener(
-    [nameFieldRef, submitButtonRef, selectTypeButtonRef],
+    [nameFieldRef, submitButtonRef, selectTypeButtonRef, labelsButtonRef],
     handleAwayClick,
     handleClickAwayCancel,
   );
@@ -151,6 +180,11 @@ const AddCard = React.memo(({ isOpened, openOnCreate, className, onCreate, onClo
     onClose: handleSelectTypeClose,
   });
 
+  const LabelsPopup = usePopup(LabelsStep, {
+    onOpen: activateClosable,
+    onClose: handleLabelsClose,
+  });
+
   return (
     <Form
       className={classNames(className, !isOpened && styles.wrapperClosed)}
@@ -170,6 +204,13 @@ const AddCard = React.memo(({ isOpened, openOnCreate, className, onCreate, onClo
           onKeyDown={handleFieldKeyDown}
           onChange={handleFieldChange}
         />
+        {data.labelIds.length > 0 && (
+          <div className={styles.labels}>
+            {data.labelIds.map((labelId) => (
+              <LabelChip key={labelId} id={labelId} size="small" />
+            ))}
+          </div>
+        )}
       </div>
       <div className={styles.controls}>
         <Button
@@ -179,6 +220,15 @@ const AddCard = React.memo(({ isOpened, openOnCreate, className, onCreate, onClo
           content={t('action.addCard')}
           className={styles.button}
         />
+        <LabelsPopup currentIds={data.labelIds} onSelect={handleLabelSelect} onDeselect={handleLabelDeselect}>
+          <Button
+            {...clickAwayProps} // eslint-disable-line react/jsx-props-no-spreading
+            ref={handleLabelsButtonRef}
+            type="button"
+            icon="tag"
+            className={classNames(styles.button, styles.labelsButton)}
+          />
+        </LabelsPopup>
         <SelectCardTypePopup defaultValue={data.type} onSelect={handleTypeSelect}>
           <Button
             {...clickAwayProps} // eslint-disable-line react/jsx-props-no-spreading

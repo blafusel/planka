@@ -31,6 +31,26 @@
     padding: 6px 8px 2px;
   }
 
+  .labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .labelsButton {
+    background: transparent;
+    box-shadow: none;
+    color: #6b808c;
+    margin-left: 4px;
+    padding: 8px 10px;
+
+    &:hover {
+      background: rgba(9, 30, 66, 0.08);
+      color: #092d42;
+    }
+  }
+
   .selectTypeButton {
     background: transparent;
     box-shadow: none;
