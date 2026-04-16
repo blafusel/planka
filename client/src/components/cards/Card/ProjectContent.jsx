@@ -14,6 +14,7 @@ import entryActions from '../../../entry-actions';
 import { startStopwatch, stopStopwatch } from '../../../utils/stopwatch';
 import { isListArchiveOrTrash } from '../../../utils/record-helpers';
 import { BoardMembershipRoles, BoardViews } from '../../../constants/Enums';
+import markdownToText from '../../../utils/markdown-to-text';
 import TaskList from './TaskList';
 import DueDateChip from '../DueDateChip';
 import StopwatchChip from '../StopwatchChip';
@@ -76,13 +77,14 @@ const ProjectContent = React.memo(({ cardId }) => {
     return attachment && attachment.data.thumbnailUrls.outside360;
   });
 
-  const { listName, withCreator, withAge } = useSelector((state) => {
+  const { listName, withCreator, withAge, showDescriptions } = useSelector((state) => {
     const board = selectors.selectCurrentBoard(state);
 
     return {
       listName: list.name && (board.view === BoardViews.KANBAN ? null : list.name),
       withCreator: board.alwaysDisplayCardCreator,
       withAge: board.displayCardAges,
+      showDescriptions: board.showDescriptions,
     };
   }, shallowEqual);
 
@@ -149,6 +151,9 @@ const ProjectContent = React.memo(({ cardId }) => {
   return (
     <div className={styles.wrapper}>
       <div className={classNames(styles.name, card.isClosed && styles.nameClosed)}>{card.name}</div>
+      {showDescriptions && card.description && (
+        <div className={styles.description}>{markdownToText(card.description)}</div>
+      )}
       {coverUrl && (
         <div className={styles.coverWrapper}>
           <img src={coverUrl} alt="" className={styles.cover} />

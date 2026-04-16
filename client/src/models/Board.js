@@ -36,6 +36,9 @@ export default class extends BaseModel {
     context: attr(),
     view: attr(),
     search: attr(),
+    showDescriptions: attr({
+      getDefault: () => false,
+    }),
     isSubscribed: attr({
       getDefault: () => false,
     }),

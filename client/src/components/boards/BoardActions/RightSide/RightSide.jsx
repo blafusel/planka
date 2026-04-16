@@ -6,10 +6,12 @@
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
+import classNames from 'classnames';
 import { usePopup } from '../../../../lib/popup';
 
 import selectors from '../../../../selectors';
 import entryActions from '../../../../entry-actions';
+import actions from '../../../../actions';
 import { BoardContexts, BoardViews } from '../../../../constants/Enums';
 import { BoardViewIcons } from '../../../../constants/Icons';
 import ActionsStep from './ActionsStep';
@@ -27,6 +29,10 @@ const RightSide = React.memo(() => {
     },
     [dispatch],
   );
+
+  const handleToggleDescriptionsClick = useCallback(() => {
+    dispatch(actions.updateBoard(board.id, { showDescriptions: !board.showDescriptions }));
+  }, [board.id, board.showDescriptions, dispatch]);
 
   const ActionsPopup = usePopup(ActionsStep);
 
@@ -52,6 +58,16 @@ const RightSide = React.memo(() => {
             </button>
           ))}
         </div>
+      </div>
+      <div className={styles.action}>
+        <button
+          type="button"
+          className={classNames(styles.button, board.showDescriptions && styles.buttonActive)}
+          onClick={handleToggleDescriptionsClick}
+          title="Toggle card descriptions"
+        >
+          <Icon fitted name="align left" />
+        </button>
       </div>
       <div className={styles.action}>
         <ActionsPopup>

@@ -76,6 +76,18 @@
     display: block;
   }
 
+  .description {
+    color: #6a808b;
+    display: -webkit-box;
+    font-size: 12px;
+    line-height: 16px;
+    margin-bottom: 6px;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    word-wrap: break-word;
+  }
+
   .name {
     color: #17394d;
     font-size: 14px;
