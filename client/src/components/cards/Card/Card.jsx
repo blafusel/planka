@@ -12,6 +12,7 @@ import { push } from '../../../lib/redux-router';
 import { closePopup, usePopup } from '../../../lib/popup';
 
 import selectors from '../../../selectors';
+import actions from '../../../actions';
 import { BoardShortcutsContext } from '../../../contexts';
 import Paths from '../../../constants/Paths';
 import ClipboardTypes from '../../../constants/ClipboardTypes';
@@ -56,19 +57,42 @@ const Card = React.memo(({ id, isInline }) => {
     return !!boardMembership && boardMembership.role === BoardMembershipRoles.EDITOR;
   });
 
+  const { isSelectMode, isSelected, boardId, selectedCardIds, selectedCount } = useSelector(
+    (state) => {
+      const board = selectors.selectCurrentBoard(state);
+      const ids = board.selectedCardIds || [];
+      return {
+        isSelectMode: board.isSelectMode,
+        isSelected: ids.includes(id),
+        boardId: board.id,
+        selectedCardIds: ids,
+        selectedCount: ids.length,
+      };
+    },
+  );
+
   const dispatch = useDispatch();
   const [isEditNameOpened, setIsEditNameOpened] = useState(false);
   const [, , handleCardMouseEnter, handleCardMouseLeave] = useContext(BoardShortcutsContext);
 
   const actionsPopupRef = useRef(null);
 
-  const handleClick = useCallback(() => {
+  const handleClick = useCallback((event) => {
+    if (isSelectMode) {
+      event.stopPropagation();
+      const newIds = selectedCardIds.includes(id)
+        ? selectedCardIds.filter((cId) => cId !== id)
+        : [...selectedCardIds, id];
+      dispatch(actions.updateBoard(boardId, { selectedCardIds: newIds }));
+      return;
+    }
+
     if (document.activeElement) {
       document.activeElement.blur();
     }
 
     dispatch(push(Paths.CARDS.replace(':id', id)));
-  }, [id, dispatch]);
+  }, [id, isSelectMode, boardId, selectedCardIds, dispatch]);
 
   const handleMouseEnter = useCallback(() => {
     handleCardMouseEnter(
@@ -130,10 +154,29 @@ const Card = React.memo(({ id, isInline }) => {
 
   return (
     <div
-      className={classNames(styles.wrapper, isHighlightedAsRecent && styles.wrapperRecent, 'card')}
+      className={classNames(
+        styles.wrapper,
+        isHighlightedAsRecent && styles.wrapperRecent,
+        isSelectMode && styles.wrapperSelectable,
+        isSelected && styles.wrapperSelected,
+        'card',
+      )}
     >
       {card.isPersisted ? (
         <>
+          {isSelectMode && (
+            /* eslint-disable-next-line jsx-a11y/click-events-have-key-events,
+                                         jsx-a11y/no-static-element-interactions */
+            <div
+              className={classNames(styles.selectionIndicator, isSelected && styles.selectionIndicatorChecked)}
+              onClick={handleClick}
+            >
+              <Icon fitted name={isSelected ? 'check square outline' : 'square outline'} />
+              {isSelected && selectedCount > 1 && (
+                <span className={styles.selectionCount}>{selectedCount}</span>
+              )}
+            </div>
+          )}
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,
                                        jsx-a11y/no-static-element-interactions */}
           <div
@@ -142,14 +185,14 @@ const Card = React.memo(({ id, isInline }) => {
               card.isClosed && styles.contentDisabled,
               isCut && styles.contentCut,
             )}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleCardMouseLeave}
+            onMouseEnter={isSelectMode ? undefined : handleMouseEnter}
+            onMouseLeave={isSelectMode ? undefined : handleCardMouseLeave}
             onClick={handleClick}
-            onContextMenu={handleContextMenu}
+            onContextMenu={isSelectMode ? undefined : handleContextMenu}
           >
             <Content cardId={id} />
           </div>
-          {canUseActions && (
+          {!isSelectMode && canUseActions && (
             <CardActionsPopup ref={actionsPopupRef} cardId={id} onNameEdit={handleNameEdit}>
               <Button className={styles.actionsButton}>
                 <Icon fitted name="pencil" size="small" />

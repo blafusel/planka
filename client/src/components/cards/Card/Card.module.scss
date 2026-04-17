@@ -65,6 +65,54 @@
     }
   }
 
+  .wrapperSelectable {
+    cursor: pointer;
+    outline: 2px solid transparent;
+    outline-offset: 1px;
+    transition: outline-color 0.1s ease;
+
+    &:hover {
+      outline-color: #0079bf;
+    }
+  }
+
+  .wrapperSelected {
+    outline: 2px solid #0079bf !important;
+    background: #e4f0fb;
+
+    &:hover {
+      background: #d4e8f7;
+    }
+  }
+
+  .selectionIndicator {
+    color: #aaa;
+    font-size: 16px;
+    line-height: 1;
+    padding: 4px 6px 0;
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    z-index: 10;
+  }
+
+  .selectionIndicatorChecked {
+    color: #0079bf;
+  }
+
+  .selectionCount {
+    background: #0079bf;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 2px 5px;
+    position: absolute;
+    right: -4px;
+    top: -4px;
+  }
+
   .wrapperRecent:not(:hover) {
     overflow: hidden;
 

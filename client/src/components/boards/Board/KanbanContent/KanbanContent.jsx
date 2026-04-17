@@ -12,6 +12,7 @@ import { closePopup } from '../../../../lib/popup';
 
 import selectors from '../../../../selectors';
 import entryActions from '../../../../entry-actions';
+import actions from '../../../../actions';
 import parseDndId from '../../../../utils/parse-dnd-id';
 import DroppableTypes from '../../../../constants/DroppableTypes';
 import { BoardMembershipRoles } from '../../../../constants/Enums';
@@ -24,6 +25,14 @@ import globalStyles from '../../../../styles.module.scss';
 
 const KanbanContent = React.memo(() => {
   const listIds = useSelector(selectors.selectKanbanListIdsForCurrentBoard);
+
+  const board = useSelector(selectors.selectCurrentBoard);
+
+  const cardIdsByListId = useSelector((state) =>
+    Object.fromEntries(
+      listIds.map((listId) => [listId, selectors.selectCardIdsByListId(state, listId)]),
+    ),
+  );
 
   const canAddList = useSelector((state) => {
     const isEditModeEnabled = selectors.selectIsEditModeEnabled(state); // TODO: move out?
@@ -43,20 +52,32 @@ const KanbanContent = React.memo(() => {
   const wrapperRef = useRef(null);
   const prevPositionRef = useRef(null);
 
-  const handleDragStart = useCallback(() => {
-    document.body.classList.add(globalStyles.dragging);
-    closePopup();
-  }, []);
+  const handleDragStart = useCallback(
+    ({ draggableId, source }) => {
+      document.body.classList.add(globalStyles.dragging);
+      closePopup();
+
+      const cardId = parseDndId(draggableId);
+      const listId = parseDndId(source.droppableId);
+
+      if (board.isSelectMode && board.selectedCardIds && board.selectedCardIds.includes(cardId)) {
+        dispatch(actions.updateBoard(board.id, { draggingCardId: cardId, draggingFromListId: listId }));
+      }
+    },
+    [board, dispatch],
+  );
 
   const handleDragEnd = useCallback(
     ({ draggableId, type, source, destination }) => {
       document.body.classList.remove(globalStyles.dragging);
 
       if (!destination) {
+        dispatch(actions.updateBoard(board.id, { draggingCardId: null, draggingFromListId: null }));
         return;
       }
 
       if (source.droppableId === destination.droppableId && source.index === destination.index) {
+        dispatch(actions.updateBoard(board.id, { draggingCardId: null, draggingFromListId: null }));
         return;
       }
 
@@ -67,16 +88,43 @@ const KanbanContent = React.memo(() => {
           dispatch(entryActions.moveList(id, destination.index));
 
           break;
-        case DroppableTypes.CARD:
-          dispatch(
-            entryActions.moveCard(id, parseDndId(destination.droppableId), destination.index),
-          );
+        case DroppableTypes.CARD: {
+          const destListId = parseDndId(destination.droppableId);
+          const sourceListId = parseDndId(source.droppableId);
+          const { selectedCardIds, isSelectMode } = board;
+
+          if (
+            isSelectMode &&
+            selectedCardIds &&
+            selectedCardIds.length > 1 &&
+            selectedCardIds.includes(id)
+          ) {
+            // Move dragged card first
+            dispatch(entryActions.moveCard(id, destListId, destination.index));
+
+            // Move other selected cards from the same source list, preserving their order
+            const sourceCardIds = cardIdsByListId[sourceListId] || [];
+            const othersInSourceList = sourceCardIds.filter(
+              (cardId) => cardId !== id && selectedCardIds.includes(cardId),
+            );
+
+            othersInSourceList.forEach((cardId, i) => {
+              dispatch(entryActions.moveCard(cardId, destListId, destination.index + 1 + i));
+            });
+
+            // Clear selection and drag tracking after move
+            dispatch(actions.updateBoard(board.id, { selectedCardIds: [], draggingCardId: null, draggingFromListId: null }));
+          } else {
+            dispatch(entryActions.moveCard(id, destListId, destination.index));
+            dispatch(actions.updateBoard(board.id, { draggingCardId: null, draggingFromListId: null }));
+          }
 
           break;
+        }
         default:
       }
     },
-    [dispatch],
+    [board, cardIdsByListId, dispatch],
   );
 
   const handleAddListClick = useCallback(() => {
@@ -86,6 +134,16 @@ const KanbanContent = React.memo(() => {
   const handleAddListClose = useCallback(() => {
     setIsAddListOpened(false);
   }, []);
+
+  const handleWrapperClick = useCallback(
+    (event) => {
+      if (!board.isSelectMode) return;
+      if (event.target === wrapperRef.current || event.target.dataset.dragScroller !== undefined) {
+        dispatch(actions.updateBoard(board.id, { isSelectMode: false, selectedCardIds: [] }));
+      }
+    },
+    [board.id, board.isSelectMode, dispatch],
+  );
 
   const handleMouseDown = useCallback((event) => {
     // If button is defined and not equal to 0 (left click)
@@ -149,8 +207,8 @@ const KanbanContent = React.memo(() => {
   }, [listIds, isAddListOpened]);
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div ref={wrapperRef} className={styles.wrapper} onMouseDown={handleMouseDown}>
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
+    <div ref={wrapperRef} className={styles.wrapper} onMouseDown={handleMouseDown} onClick={handleWrapperClick}>
       <div>
         <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <Droppable droppableId="board" type={DroppableTypes.LIST} direction="horizontal">

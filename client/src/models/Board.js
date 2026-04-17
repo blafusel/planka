@@ -36,6 +36,18 @@ export default class extends BaseModel {
     context: attr(),
     view: attr(),
     search: attr(),
+    isSelectMode: attr({
+      getDefault: () => false,
+    }),
+    selectedCardIds: attr({
+      getDefault: () => [],
+    }),
+    draggingCardId: attr({
+      getDefault: () => null,
+    }),
+    draggingFromListId: attr({
+      getDefault: () => null,
+    }),
     isSubscribed: attr({
       getDefault: () => false,
     }),
