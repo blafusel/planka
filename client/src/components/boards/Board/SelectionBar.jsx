@@ -21,17 +21,10 @@ const SelectionBar = React.memo(() => {
     listIds.map((listId) => selectors.selectListById(state, listId)).filter(Boolean),
   );
 
-  const allCardIds = useSelector((state) =>
-    listIds.flatMap((listId) => selectors.selectCardIdsByListId(state, listId)),
-  );
-
   const dispatch = useDispatch();
 
-  const selectedCount = board.selectedCardIds ? board.selectedCardIds.length : 0;
 
-  const handleSelectAll = useCallback(() => {
-    dispatch(actions.updateBoard(board.id, { selectedCardIds: allCardIds }));
-  }, [board.id, allCardIds, dispatch]);
+  const selectedCount = board.selectedCardIds ? board.selectedCardIds.length : 0;
 
   const handleClearSelection = useCallback(() => {
     dispatch(actions.updateBoard(board.id, { selectedCardIds: [], isSelectMode: false }));
@@ -79,10 +72,6 @@ const SelectionBar = React.memo(() => {
       <span className={styles.count}>
         {selectedCount} card{selectedCount !== 1 ? 's' : ''} selected
       </span>
-      <Button size="mini" className={styles.action} onClick={handleSelectAll}>
-        <Icon name="check square" />
-        Select all
-      </Button>
       {selectedCount > 0 && (
         <>
           <Button size="mini" className={styles.action} onClick={handleArchive} title="Archive selected">
