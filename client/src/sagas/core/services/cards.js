@@ -9,6 +9,7 @@ import { LOCATION_CHANGE_HANDLE } from '../../../lib/redux-router';
 
 import { goToBoard, goToCard } from './router';
 import { addLabelToCard } from './labels';
+import { addUserToCard } from './users';
 import request from '../request';
 import selectors from '../../../selectors';
 import actions from '../../../actions';
@@ -167,8 +168,20 @@ export function* createCard(listId, data, index, autoOpen) {
 
   yield put(actions.createCard.success(localId, card));
 
+  const currentUser = yield select(selectors.selectCurrentUser);
+
+  const postCreateCalls = [];
+
   if (data.labelIds && data.labelIds.length > 0) {
-    yield all(data.labelIds.map((labelId) => call(addLabelToCard, labelId, card.id)));
+    postCreateCalls.push(...data.labelIds.map((labelId) => call(addLabelToCard, labelId, card.id)));
+  }
+
+  if (currentUser && currentUser.addSelfOnCardCreate !== false) {
+    postCreateCalls.push(call(addUserToCard, currentUser.id, card.id));
+  }
+
+  if (postCreateCalls.length > 0) {
+    yield all(postCreateCalls);
   }
 
   if (watchForCreateCardActionTask && watchForCreateCardActionTask.isRunning()) {

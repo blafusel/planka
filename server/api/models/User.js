@@ -251,6 +251,7 @@ const PERSONAL_FIELD_NAMES = [
   'subscribeToCardWhenCommenting',
   'turnOffRecentCardHighlighting',
   'openCardOnCreate',
+  'addSelfOnCardCreate',
   'showCommentCount',
   'showDescriptionsOnCards',
   'enableFavoritesByDefault',
@@ -361,6 +362,11 @@ module.exports = {
       type: 'boolean',
       defaultsTo: true,
       columnName: 'open_card_on_create',
+    },
+    addSelfOnCardCreate: {
+      type: 'boolean',
+      defaultsTo: true,
+      columnName: 'add_self_on_card_create',
     },
     showCommentCount: {
       type: 'boolean',

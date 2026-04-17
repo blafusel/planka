@@ -42,6 +42,14 @@ const PreferencesPane = React.memo(() => {
       />
       <Radio
         toggle
+        name="addSelfOnCardCreate"
+        checked={user.addSelfOnCardCreate}
+        label={t('common.addSelfOnCardCreate')}
+        className={styles.radio}
+        onChange={handleChange}
+      />
+      <Radio
+        toggle
         name="subscribeToOwnCards"
         checked={user.subscribeToOwnCards}
         label={t('common.subscribeToMyOwnCardsByDefault')}

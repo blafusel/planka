@@ -323,6 +323,7 @@ export default {
       trash: 'Trash',
       trashHasBeenSuccessfullyEmptied: 'Trash has been successfully emptied.',
       openCardOnCreate: 'Open card immediately after creation',
+      addSelfOnCardCreate: 'Add myself as a member when creating a card',
       showCommentCount: 'Show comment count on cards',
       turnOffRecentCardHighlighting: 'Turn off recent card highlighting',
       typeNameToConfirm: 'Type the name to confirm.',
