@@ -160,7 +160,12 @@ const Card = React.memo(({ id, isInline }) => {
       {card.isPersisted ? (
         <>
           {isSelectMode && (
-            <div className={classNames(styles.selectionIndicator, isSelected && styles.selectionIndicatorChecked)}>
+            /* eslint-disable-next-line jsx-a11y/click-events-have-key-events,
+                                         jsx-a11y/no-static-element-interactions */
+            <div
+              className={classNames(styles.selectionIndicator, isSelected && styles.selectionIndicatorChecked)}
+              onClick={handleClick}
+            >
               <Icon fitted name={isSelected ? 'check square outline' : 'square outline'} />
             </div>
           )}
