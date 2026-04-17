@@ -100,6 +100,19 @@
     color: #0079bf;
   }
 
+  .selectionCount {
+    background: #0079bf;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 2px 5px;
+    position: absolute;
+    right: -4px;
+    top: -4px;
+  }
+
   .wrapperRecent:not(:hover) {
     overflow: hidden;
 

@@ -57,15 +57,19 @@ const Card = React.memo(({ id, isInline }) => {
     return !!boardMembership && boardMembership.role === BoardMembershipRoles.EDITOR;
   });
 
-  const { isSelectMode, isSelected, boardId, selectedCardIds } = useSelector((state) => {
-    const board = selectors.selectCurrentBoard(state);
-    return {
-      isSelectMode: board.isSelectMode,
-      isSelected: board.selectedCardIds && board.selectedCardIds.includes(id),
-      boardId: board.id,
-      selectedCardIds: board.selectedCardIds || [],
-    };
-  });
+  const { isSelectMode, isSelected, boardId, selectedCardIds, selectedCount } = useSelector(
+    (state) => {
+      const board = selectors.selectCurrentBoard(state);
+      const ids = board.selectedCardIds || [];
+      return {
+        isSelectMode: board.isSelectMode,
+        isSelected: ids.includes(id),
+        boardId: board.id,
+        selectedCardIds: ids,
+        selectedCount: ids.length,
+      };
+    },
+  );
 
   const dispatch = useDispatch();
   const [isEditNameOpened, setIsEditNameOpened] = useState(false);
@@ -167,6 +171,9 @@ const Card = React.memo(({ id, isInline }) => {
               onClick={handleClick}
             >
               <Icon fitted name={isSelected ? 'check square outline' : 'square outline'} />
+              {isSelected && selectedCount > 1 && (
+                <span className={styles.selectionCount}>{selectedCount}</span>
+              )}
             </div>
           )}
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,

@@ -12,6 +12,7 @@ import { closePopup } from '../../../../lib/popup';
 
 import selectors from '../../../../selectors';
 import entryActions from '../../../../entry-actions';
+import actions from '../../../../actions';
 import parseDndId from '../../../../utils/parse-dnd-id';
 import DroppableTypes from '../../../../constants/DroppableTypes';
 import { BoardMembershipRoles } from '../../../../constants/Enums';
@@ -24,6 +25,14 @@ import globalStyles from '../../../../styles.module.scss';
 
 const KanbanContent = React.memo(() => {
   const listIds = useSelector(selectors.selectKanbanListIdsForCurrentBoard);
+
+  const board = useSelector(selectors.selectCurrentBoard);
+
+  const cardIdsByListId = useSelector((state) =>
+    Object.fromEntries(
+      listIds.map((listId) => [listId, selectors.selectCardIdsByListId(state, listId)]),
+    ),
+  );
 
   const canAddList = useSelector((state) => {
     const isEditModeEnabled = selectors.selectIsEditModeEnabled(state); // TODO: move out?
@@ -67,16 +76,42 @@ const KanbanContent = React.memo(() => {
           dispatch(entryActions.moveList(id, destination.index));
 
           break;
-        case DroppableTypes.CARD:
-          dispatch(
-            entryActions.moveCard(id, parseDndId(destination.droppableId), destination.index),
-          );
+        case DroppableTypes.CARD: {
+          const destListId = parseDndId(destination.droppableId);
+          const sourceListId = parseDndId(source.droppableId);
+          const { selectedCardIds, isSelectMode } = board;
+
+          if (
+            isSelectMode &&
+            selectedCardIds &&
+            selectedCardIds.length > 1 &&
+            selectedCardIds.includes(id)
+          ) {
+            // Move dragged card first
+            dispatch(entryActions.moveCard(id, destListId, destination.index));
+
+            // Move other selected cards from the same source list, preserving their order
+            const sourceCardIds = cardIdsByListId[sourceListId] || [];
+            const othersInSourceList = sourceCardIds.filter(
+              (cardId) => cardId !== id && selectedCardIds.includes(cardId),
+            );
+
+            othersInSourceList.forEach((cardId, i) => {
+              dispatch(entryActions.moveCard(cardId, destListId, destination.index + 1 + i));
+            });
+
+            // Clear selection after move
+            dispatch(actions.updateBoard(board.id, { selectedCardIds: [] }));
+          } else {
+            dispatch(entryActions.moveCard(id, destListId, destination.index));
+          }
 
           break;
+        }
         default:
       }
     },
-    [dispatch],
+    [board, cardIdsByListId, dispatch],
   );
 
   const handleAddListClick = useCallback(() => {
