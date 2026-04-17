@@ -12,6 +12,7 @@ import { push } from '../../../lib/redux-router';
 import { closePopup, usePopup } from '../../../lib/popup';
 
 import selectors from '../../../selectors';
+import actions from '../../../actions';
 import { BoardShortcutsContext } from '../../../contexts';
 import Paths from '../../../constants/Paths';
 import ClipboardTypes from '../../../constants/ClipboardTypes';
@@ -56,6 +57,16 @@ const Card = React.memo(({ id, isInline }) => {
     return !!boardMembership && boardMembership.role === BoardMembershipRoles.EDITOR;
   });
 
+  const { isSelectMode, isSelected, boardId, selectedCardIds } = useSelector((state) => {
+    const board = selectors.selectCurrentBoard(state);
+    return {
+      isSelectMode: board.isSelectMode,
+      isSelected: board.selectedCardIds && board.selectedCardIds.includes(id),
+      boardId: board.id,
+      selectedCardIds: board.selectedCardIds || [],
+    };
+  });
+
   const dispatch = useDispatch();
   const [isEditNameOpened, setIsEditNameOpened] = useState(false);
   const [, , handleCardMouseEnter, handleCardMouseLeave] = useContext(BoardShortcutsContext);
@@ -63,12 +74,20 @@ const Card = React.memo(({ id, isInline }) => {
   const actionsPopupRef = useRef(null);
 
   const handleClick = useCallback(() => {
+    if (isSelectMode) {
+      const newIds = selectedCardIds.includes(id)
+        ? selectedCardIds.filter((cId) => cId !== id)
+        : [...selectedCardIds, id];
+      dispatch(actions.updateBoard(boardId, { selectedCardIds: newIds }));
+      return;
+    }
+
     if (document.activeElement) {
       document.activeElement.blur();
     }
 
     dispatch(push(Paths.CARDS.replace(':id', id)));
-  }, [id, dispatch]);
+  }, [id, isSelectMode, boardId, selectedCardIds, dispatch]);
 
   const handleMouseEnter = useCallback(() => {
     handleCardMouseEnter(
@@ -130,10 +149,21 @@ const Card = React.memo(({ id, isInline }) => {
 
   return (
     <div
-      className={classNames(styles.wrapper, isHighlightedAsRecent && styles.wrapperRecent, 'card')}
+      className={classNames(
+        styles.wrapper,
+        isHighlightedAsRecent && styles.wrapperRecent,
+        isSelectMode && styles.wrapperSelectable,
+        isSelected && styles.wrapperSelected,
+        'card',
+      )}
     >
       {card.isPersisted ? (
         <>
+          {isSelectMode && (
+            <div className={classNames(styles.selectionIndicator, isSelected && styles.selectionIndicatorChecked)}>
+              <Icon fitted name={isSelected ? 'check square outline' : 'square outline'} />
+            </div>
+          )}
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,
                                        jsx-a11y/no-static-element-interactions */}
           <div
@@ -142,14 +172,14 @@ const Card = React.memo(({ id, isInline }) => {
               card.isClosed && styles.contentDisabled,
               isCut && styles.contentCut,
             )}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleCardMouseLeave}
+            onMouseEnter={isSelectMode ? undefined : handleMouseEnter}
+            onMouseLeave={isSelectMode ? undefined : handleCardMouseLeave}
             onClick={handleClick}
-            onContextMenu={handleContextMenu}
+            onContextMenu={isSelectMode ? undefined : handleContextMenu}
           >
             <Content cardId={id} />
           </div>
-          {canUseActions && (
+          {!isSelectMode && canUseActions && (
             <CardActionsPopup ref={actionsPopupRef} cardId={id} onNameEdit={handleNameEdit}>
               <Button className={styles.actionsButton}>
                 <Icon fitted name="pencil" size="small" />

@@ -11,6 +11,7 @@ import { usePopup } from '../../../../lib/popup';
 
 import selectors from '../../../../selectors';
 import entryActions from '../../../../entry-actions';
+import actions from '../../../../actions';
 import { BoardContexts, BoardViews } from '../../../../constants/Enums';
 import { BoardViewIcons } from '../../../../constants/Icons';
 import ActionsStep from './ActionsStep';
@@ -36,6 +37,10 @@ const RightSide = React.memo(() => {
   const handleToggleDescriptionsClick = useCallback(() => {
     dispatch(entryActions.updateCurrentUser({ showDescriptionsOnCards: !showDescriptions }));
   }, [showDescriptions, dispatch]);
+
+  const handleToggleSelectModeClick = useCallback(() => {
+    dispatch(actions.updateBoard(board.id, { isSelectMode: !board.isSelectMode, selectedCardIds: [] }));
+  }, [board.id, board.isSelectMode, dispatch]);
 
   const ActionsPopup = usePopup(ActionsStep);
 
@@ -70,6 +75,16 @@ const RightSide = React.memo(() => {
           title="Toggle card descriptions"
         >
           <Icon fitted name="align left" />
+        </button>
+      </div>
+      <div className={styles.action}>
+        <button
+          type="button"
+          className={classNames(styles.button, board.isSelectMode && styles.buttonActive)}
+          onClick={handleToggleSelectModeClick}
+          title="Toggle card selection mode"
+        >
+          <Icon fitted name="checkmark box" />
         </button>
       </div>
       <div className={styles.action}>

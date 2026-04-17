@@ -13,6 +13,7 @@ import KanbanContent from './KanbanContent';
 import FiniteContent from './FiniteContent';
 import EndlessContent from './EndlessContent';
 import ShortcutsProvider from './ShortcutsProvider';
+import SelectionBar from './SelectionBar';
 import CardModal from '../../cards/CardModal';
 import BoardActivitiesModal from '../../activities/BoardActivitiesModal';
 
@@ -54,6 +55,7 @@ const Board = React.memo(() => {
 
   return (
     <>
+      <SelectionBar />
       <ShortcutsProvider>
         <Content />
       </ShortcutsProvider>
