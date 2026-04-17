@@ -77,8 +77,9 @@ const Card = React.memo(({ id, isInline }) => {
 
   const actionsPopupRef = useRef(null);
 
-  const handleClick = useCallback(() => {
+  const handleClick = useCallback((event) => {
     if (isSelectMode) {
+      event.stopPropagation();
       const newIds = selectedCardIds.includes(id)
         ? selectedCardIds.filter((cId) => cId !== id)
         : [...selectedCardIds, id];

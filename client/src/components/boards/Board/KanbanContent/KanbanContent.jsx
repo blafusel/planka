@@ -52,20 +52,32 @@ const KanbanContent = React.memo(() => {
   const wrapperRef = useRef(null);
   const prevPositionRef = useRef(null);
 
-  const handleDragStart = useCallback(() => {
-    document.body.classList.add(globalStyles.dragging);
-    closePopup();
-  }, []);
+  const handleDragStart = useCallback(
+    ({ draggableId, source }) => {
+      document.body.classList.add(globalStyles.dragging);
+      closePopup();
+
+      const cardId = parseDndId(draggableId);
+      const listId = parseDndId(source.droppableId);
+
+      if (board.isSelectMode && board.selectedCardIds && board.selectedCardIds.includes(cardId)) {
+        dispatch(actions.updateBoard(board.id, { draggingCardId: cardId, draggingFromListId: listId }));
+      }
+    },
+    [board, dispatch],
+  );
 
   const handleDragEnd = useCallback(
     ({ draggableId, type, source, destination }) => {
       document.body.classList.remove(globalStyles.dragging);
 
       if (!destination) {
+        dispatch(actions.updateBoard(board.id, { draggingCardId: null, draggingFromListId: null }));
         return;
       }
 
       if (source.droppableId === destination.droppableId && source.index === destination.index) {
+        dispatch(actions.updateBoard(board.id, { draggingCardId: null, draggingFromListId: null }));
         return;
       }
 
@@ -100,10 +112,11 @@ const KanbanContent = React.memo(() => {
               dispatch(entryActions.moveCard(cardId, destListId, destination.index + 1 + i));
             });
 
-            // Clear selection after move
-            dispatch(actions.updateBoard(board.id, { selectedCardIds: [] }));
+            // Clear selection and drag tracking after move
+            dispatch(actions.updateBoard(board.id, { selectedCardIds: [], draggingCardId: null, draggingFromListId: null }));
           } else {
             dispatch(entryActions.moveCard(id, destListId, destination.index));
+            dispatch(actions.updateBoard(board.id, { draggingCardId: null, draggingFromListId: null }));
           }
 
           break;
@@ -121,6 +134,16 @@ const KanbanContent = React.memo(() => {
   const handleAddListClose = useCallback(() => {
     setIsAddListOpened(false);
   }, []);
+
+  const handleWrapperClick = useCallback(
+    (event) => {
+      if (!board.isSelectMode) return;
+      if (event.target === wrapperRef.current || event.target.dataset.dragScroller !== undefined) {
+        dispatch(actions.updateBoard(board.id, { isSelectMode: false, selectedCardIds: [] }));
+      }
+    },
+    [board.id, board.isSelectMode, dispatch],
+  );
 
   const handleMouseDown = useCallback((event) => {
     // If button is defined and not equal to 0 (left click)
@@ -184,8 +207,8 @@ const KanbanContent = React.memo(() => {
   }, [listIds, isAddListOpened]);
 
   return (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-    <div ref={wrapperRef} className={styles.wrapper} onMouseDown={handleMouseDown}>
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
+    <div ref={wrapperRef} className={styles.wrapper} onMouseDown={handleMouseDown} onClick={handleWrapperClick}>
       <div>
         <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <Droppable droppableId="board" type={DroppableTypes.LIST} direction="horizontal">

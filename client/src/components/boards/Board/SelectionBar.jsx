@@ -3,7 +3,7 @@
  * Licensed under the Fair Use License: https://github.com/plankanban/planka/blob/master/LICENSE.md
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Dropdown, Icon } from 'semantic-ui-react';
 
@@ -23,6 +23,18 @@ const SelectionBar = React.memo(() => {
 
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (!board.isSelectMode) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        dispatch(actions.updateBoard(board.id, { isSelectMode: false, selectedCardIds: [] }));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [board.id, board.isSelectMode, dispatch]);
 
   const selectedCount = board.selectedCardIds ? board.selectedCardIds.length : 0;
 

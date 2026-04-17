@@ -25,18 +25,43 @@ const DraggableCard = React.memo(({ id, index, className, ...props }) => {
     return !!boardMembership && boardMembership.role === BoardMembershipRoles.EDITOR;
   });
 
+  const { isSelected, selectedCount, draggingCardId, draggingFromListId } = useSelector(
+    (state) => {
+      const board = selectors.selectCurrentBoard(state);
+      const ids = board.selectedCardIds || [];
+      return {
+        isSelected: ids.includes(id),
+        selectedCount: ids.length,
+        draggingCardId: board.draggingCardId,
+        draggingFromListId: board.draggingFromListId,
+      };
+    },
+  );
+
+  const isMultiDragInProgress = draggingCardId !== null && selectedCount > 1;
+  const isGhost =
+    isMultiDragInProgress &&
+    isSelected &&
+    id !== draggingCardId &&
+    card.listId === draggingFromListId;
+
   return (
     <Draggable
       draggableId={`card:${id}`}
       index={index}
       isDragDisabled={!card.isPersisted || !canDrag}
     >
-      {({ innerRef, draggableProps, dragHandleProps }) => (
+      {({ innerRef, draggableProps, dragHandleProps }, snapshot) => (
         <div
           {...draggableProps} // eslint-disable-line react/jsx-props-no-spreading
           {...dragHandleProps} // eslint-disable-line react/jsx-props-no-spreading
           ref={innerRef}
-          className={classNames(styles.wrapper, className)}
+          className={classNames(
+            styles.wrapper,
+            snapshot.isDragging && isSelected && selectedCount > 1 && styles.wrapperDraggingMultiple,
+            isGhost && styles.wrapperGhost,
+            className,
+          )}
         >
           {/* eslint-disable-next-line react/jsx-props-no-spreading */}
           <Card {...props} id={id} />

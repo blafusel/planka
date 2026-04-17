@@ -42,6 +42,12 @@ export default class extends BaseModel {
     selectedCardIds: attr({
       getDefault: () => [],
     }),
+    draggingCardId: attr({
+      getDefault: () => null,
+    }),
+    draggingFromListId: attr({
+      getDefault: () => null,
+    }),
     isSubscribed: attr({
       getDefault: () => false,
     }),
